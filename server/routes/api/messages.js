@@ -2,11 +2,6 @@ const router = require("express").Router();
 const { Conversation, Message } = require("../../db/models");
 const onlineUsers = require("../../onlineUsers");
 
-const hasAccess = async (conversationId, userId) => {
-  const conversation = await Conversation.getConversationById(conversationId);
-  return userId === conversation?.user1Id || userId === conversation?.user2Id;
-};
-
 // expects {recipientId, text, conversationId } in body (conversationId will be null if no conversation exists yet)
 router.post("/", async (req, res, next) => {
   try {
@@ -18,8 +13,12 @@ router.post("/", async (req, res, next) => {
 
     // if we already know conversation id, we can save time and just add it to message and return
     if (conversationId) {
+      const conversation = await Conversation.findByPk(conversationId);
       // check if sender has access to conversation
-      if (await hasAccess(conversationId, senderId)) {
+      if (
+        senderId === conversation?.user1Id ||
+        senderId === conversation?.user2Id
+      ) {
         const message = await Message.create({
           senderId,
           text,

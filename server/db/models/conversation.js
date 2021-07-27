@@ -21,14 +21,4 @@ Conversation.findConversation = async function (user1Id, user2Id) {
   return conversation;
 };
 
-Conversation.getConversationById = async function (conversationId) {
-  const conversation = await Conversation.findOne({
-    where: {
-      id: conversationId,
-    },
-  });
-
-  return conversation;
-};
-
 module.exports = Conversation;
