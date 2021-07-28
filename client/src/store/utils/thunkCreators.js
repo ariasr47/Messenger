@@ -1,10 +1,12 @@
 import axios from "axios";
 import socket from "../../socket";
+import { setActiveChat } from "../activeConversation";
 import {
   gotConversations,
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  clearUnseenMessagesFrom,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -117,3 +119,37 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
     console.error(error);
   }
 };
+
+// ACTIVE CONVERSATIONS THUNK CREATORS
+
+const updateMessages = async (body) => {
+  return await axios.put("/api/messages", body);
+};
+
+const sendClearUnseenMessagesFrom = (otherUserId, messageSenderId) => {
+  socket.emit("clear-unseen-messages", {
+    otherUserId,
+    messageSenderId,
+  });
+};
+
+// expects conversation.otherUser inside body
+export const setChatAsActive = (body) => async (dispatch) => {
+  try {
+    const otherUser = body;
+
+    const { data } = await updateMessages(body);
+
+    dispatch(clearUnseenMessagesFrom(otherUser.id, otherUser.id));
+
+    sendClearUnseenMessagesFrom(data.currentUser.id, otherUser.id);
+
+    dispatch(setActiveChat(otherUser.username));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+
+

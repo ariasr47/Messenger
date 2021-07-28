@@ -8,16 +8,23 @@ const useStyles = makeStyles(() => ({
   root: {
     paddingLeft: 21,
     paddingRight: 21,
-    flexGrow: 1
+    flexGrow: 1,
   },
   title: {
     fontSize: 20,
     letterSpacing: -0.29,
     fontWeight: "bold",
     marginTop: 32,
-    marginBottom: 15
-  }
+    marginBottom: 15,
+  },
 }));
+
+const byMostRecent = function (convo1, convo2) {
+  const d1 = new Date(convo1.messages[convo1.messages.length - 1].createdAt);
+  const d2 = new Date(convo2.messages[convo2.messages.length - 1].createdAt);
+
+  return d2 - d1;
+};
 
 const Sidebar = (props) => {
   const classes = useStyles();
@@ -30,9 +37,17 @@ const Sidebar = (props) => {
       <Typography className={classes.title}>Chats</Typography>
       <Search handleChange={handleChange} />
       {conversations
-        .filter((conversation) => conversation.otherUser.username.includes(searchTerm))
+        .filter((conversation) =>
+          conversation.otherUser.username.includes(searchTerm)
+        )
+        .sort(byMostRecent)
         .map((conversation) => {
-          return <Chat conversation={conversation} key={conversation.otherUser.username} />;
+          return (
+            <Chat
+              conversation={conversation}
+              key={conversation.otherUser.username}
+            />
+          );
         })}
     </Box>
   );

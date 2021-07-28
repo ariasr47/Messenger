@@ -15,8 +15,9 @@ const useStyles = makeStyles((theme) => ({
   },
   previewText: {
     fontSize: 12,
-    color: "#9CADC8",
+    color: (props) => (props.hasUnseenMessages ? "black" : "#9CADC8"),
     letterSpacing: -0.17,
+    fontWeight: (props) => (props.hasUnseenMessages ? 600 : 400),
   },
   notification: {
     height: 20,
@@ -34,11 +35,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ChatContent = (props) => {
-  const classes = useStyles();
+const getUnseenMessages = (messages, senderId) => {
+  return messages.filter(
+    (message) => message.senderId === senderId && message.seen === false
+  );
+};
 
+const ChatContent = (props) => {
   const { conversation } = props;
   const { latestMessageText, otherUser } = conversation;
+
+  const unseenMessages = getUnseenMessages(
+    conversation.messages,
+    conversation.otherUser.id
+  );
+
+  const classes = useStyles({ hasUnseenMessages: unseenMessages.length > 0 });
 
   return (
     <Box className={classes.root}>
@@ -50,6 +62,11 @@ const ChatContent = (props) => {
           {latestMessageText}
         </Typography>
       </Box>
+      {unseenMessages.length > 0 && (
+        <Typography className={classes.notification} fontWeight={700}>
+          {unseenMessages.length}
+        </Typography>
+      )}
     </Box>
   );
 };
