@@ -68,6 +68,27 @@ export const addSearchedUsersToStore = (state, users) => {
   return newState;
 };
 
+export const updateUnseenMessagesFrom = (
+  state,
+  otherUserId,
+  messageSenderId
+) => {
+  return state.map((convo) => {
+    if (convo.otherUser.id === otherUserId) {
+      return {
+        ...convo,
+        messages: convo.messages.map((message) => {
+          if (message.senderId === messageSenderId && message.seen === false) {
+            return { ...message, seen: true };
+          }
+          return message;
+        }),
+      };
+    }
+    return convo;
+  });
+};
+
 export const addNewConvoToStore = (state, recipientId, message) => {
   return state.map((convo) => {
     if (convo.otherUser.id === recipientId) {
@@ -76,8 +97,7 @@ export const addNewConvoToStore = (state, recipientId, message) => {
       newConvo.messages.push(message);
       newConvo.latestMessageText = message.text;
       return newConvo;
-    } else {
-      return convo;
     }
+    return convo;
   });
 };

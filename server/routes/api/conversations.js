@@ -19,21 +19,8 @@ router.get("/", async (req, res, next) => {
           user2Id: userId,
         },
       },
-      attributes: {
-        include: [
-          "id",
-          [
-            Sequelize.literal(
-              `(SELECT max("message"."createdAt") FROM "messages" AS "message" WHERE "message"."conversationId" = "conversation"."id")`
-            ),
-            "recentActivity",
-          ],
-        ],
-      },
-      order: [
-        [Sequelize.literal(`("recentActivity")`), "DESC"],
-        [Message, "createdAt", "ASC"],
-      ],
+      attributes: ["id"],
+      order: [[Message, "createdAt", "ASC"]],
       include: [
         {
           model: Message,
