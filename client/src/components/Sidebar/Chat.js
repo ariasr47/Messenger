@@ -21,7 +21,7 @@ const styles = {
 
 class Chat extends Component {
   handleClick = async (conversation) => {
-    await this.props.setChatAsActive(conversation.otherUser);
+    await this.props.setChatAsActive(conversation);
   };
 
   render() {

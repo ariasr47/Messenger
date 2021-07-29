@@ -75,7 +75,7 @@ router.put("/", async (req, res, next) => {
       }
     );
 
-    res.json({ currentUser: req.user });
+    res.sendStatus(200);
   } catch (error) {
     next(error);
   }
