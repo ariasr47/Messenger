@@ -146,7 +146,7 @@ export const setChatAsActive = (conversation) => async (dispatch) => {
     );
 
     if (unSeenMessagesFromOtherUser.length > 0) {
-      const res = await updateMessages(otherUser);
+      await axios.put("api/messages/", otherUser);
 
       dispatch(clearUnseenMessagesFrom(conversation.id, otherUser.id));
       sendClearUnseenMessagesFrom(conversation.id, otherUser.id);
@@ -157,7 +157,6 @@ export const setChatAsActive = (conversation) => async (dispatch) => {
     console.error(error);
   }
 };
-
 
 
 
