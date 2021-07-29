@@ -74,7 +74,7 @@ export const updateUnseenMessagesFrom = (state, conversationId, messageSenderId)
       return {
         ...convo,
         messages: convo.messages.map((message) => {
-          if (message.senderId === messageSenderId && message.seen === false) {
+          if (message.senderId === messageSenderId && !message.seen) {
             return { ...message, seen: true };
           }
           return message;
