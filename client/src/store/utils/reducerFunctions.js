@@ -68,13 +68,9 @@ export const addSearchedUsersToStore = (state, users) => {
   return newState;
 };
 
-export const updateUnseenMessagesFrom = (
-  state,
-  otherUserId,
-  messageSenderId
-) => {
+export const updateUnseenMessagesFrom = (state, conversationId, messageSenderId) => {
   return state.map((convo) => {
-    if (convo.otherUser.id === otherUserId) {
+    if (convo.id === conversationId) {
       return {
         ...convo,
         messages: convo.messages.map((message) => {

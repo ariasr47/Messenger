@@ -122,27 +122,35 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
 
 // ACTIVE CONVERSATIONS THUNK CREATORS
 
-const updateMessages = async (body) => {
+export const updateMessages = async (body) => {
   return await axios.put("/api/messages", body);
 };
 
-const sendClearUnseenMessagesFrom = (otherUserId, messageSenderId) => {
+export const sendClearUnseenMessagesFrom = (
+  conversationId,
+  messageSenderId
+) => {
   socket.emit("clear-unseen-messages", {
-    otherUserId,
+    conversationId,
     messageSenderId,
   });
 };
 
 // expects conversation.otherUser inside body
-export const setChatAsActive = (body) => async (dispatch) => {
+export const setChatAsActive = (conversation) => async (dispatch) => {
   try {
-    const otherUser = body;
+    const { otherUser } = conversation;
 
-    const { data } = await updateMessages(body);
+    const unSeenMessagesFromOtherUser = conversation.messages.filter(
+      (message) => message.senderId === otherUser.id && !message.seen
+    );
 
-    dispatch(clearUnseenMessagesFrom(otherUser.id, otherUser.id));
+    if (unSeenMessagesFromOtherUser.length > 0) {
+      const res = await updateMessages(otherUser);
 
-    sendClearUnseenMessagesFrom(data.currentUser.id, otherUser.id);
+      dispatch(clearUnseenMessagesFrom(conversation.id, otherUser.id));
+      sendClearUnseenMessagesFrom(conversation.id, otherUser.id);
+    }
 
     dispatch(setActiveChat(otherUser.username));
   } catch (error) {

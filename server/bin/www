@@ -49,7 +49,7 @@ io.on("connection", (socket) => {
 
   socket.on("clear-unseen-messages", (data) => {
     socket.broadcast.emit("clear-unseen-messages", {
-      otherUserId: data.otherUserId,
+      conversationId: data.conversationId,
       messageSenderId: data.messageSenderId,
     });
   });

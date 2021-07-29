@@ -6,6 +6,18 @@ import {
   addOnlineUser,
   clearUnseenMessagesFrom,
 } from "./store/conversations";
+import {
+  updateMessages,
+  sendClearUnseenMessagesFrom,
+} from "./store/utils/thunkCreators";
+
+const getActiveConversation = () => {
+  const { conversations, activeConversation } = store.getState();
+
+  return conversations.find(
+    (conversation) => conversation.otherUser.username === activeConversation
+  );
+};
 
 const socket = io(window.location.origin);
 
@@ -21,20 +33,23 @@ socket.on("connect", () => {
   });
 
   socket.on("new-message", (data) => {
-    const { conversations, activeConversation } = store.getState();
-    const convo = conversations.find(
-      (conversation) => conversation.otherUser.username === activeConversation
-    );
+    const convo = getActiveConversation();
+
     let message = data.message;
-    if (convo && convo.otherUser.id === data.message.senderId) {
+
+    if (convo && convo.otherUser.id === message.senderId) {
       message = { ...data.message, seen: true };
+      updateMessages(convo.otherUser).then((res) => {
+        sendClearUnseenMessagesFrom(convo.id, message.senderId);
+      });
     }
+
     store.dispatch(setNewMessage(message, data.sender));
   });
 
   socket.on("clear-unseen-messages", (data) => {
     store.dispatch(
-      clearUnseenMessagesFrom(data.otherUserId, data.messageSenderId)
+      clearUnseenMessagesFrom(data.conversationId, data.messageSenderId)
     );
   });
 });

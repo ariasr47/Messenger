@@ -70,10 +70,10 @@ export const addConversation = (recipientId, newMessage) => {
 };
 
 // sets all messages corresponding to the senderId to "seen"
-export const clearUnseenMessagesFrom = (otherUserId, messageSenderId) => {
+export const clearUnseenMessagesFrom = (conversationId, messageSenderId) => {
   return {
     type: CLEAR_UNSEEN_MESSAGES_FROM,
-    payload: { otherUserId, messageSenderId },
+    payload: { conversationId, messageSenderId },
   };
 };
 
@@ -88,7 +88,7 @@ const reducer = (state = [], action) => {
     case CLEAR_UNSEEN_MESSAGES_FROM:
       return updateUnseenMessagesFrom(
         state,
-        action.payload.otherUserId,
+        action.payload.conversationId,
         action.payload.messageSenderId
       );
     case ADD_ONLINE_USER:
