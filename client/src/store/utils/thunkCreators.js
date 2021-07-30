@@ -95,14 +95,15 @@ const sendMessage = (data, body) => {
 
 // message format to send: {recipientId, text, conversationId}
 // conversationId will be set to null if its a brand new conversation
-export const postMessage = (body) => async (dispatch) => {
+export const postMessage = (body) => async (dispatch, getState) => {
   try {
+    const { activeConversation } = getState();
     const data = await saveMessage(body);
 
     if (!body.conversationId) {
       dispatch(addConversation(body.recipientId, data.message));
     } else {
-      dispatch(setNewMessage(data.message));
+      dispatch(setNewMessage(activeConversation, data.message));
     }
 
     sendMessage(data, body);
@@ -121,43 +122,28 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
 };
 
 // ACTIVE CONVERSATIONS THUNK CREATORS
+export const setChatAsActive =
+  (conversationId, unreadMessageCount) => async (dispatch) => {
+    try {
+      if (unreadMessageCount > 0) {
+        const { data } = await axios.put("/api/messages", { conversationId });
 
-export const updateMessages = async (body) => {
-  return await axios.put("/api/messages", body);
-};
+        socket.emit("clear-unseen-messages", {
+          conversationId,
+          otherUserId: data.otherUserId,
+        });
 
-export const sendClearUnseenMessagesFrom = (
-  conversationId,
-  messageSenderId
-) => {
-  socket.emit("clear-unseen-messages", {
-    conversationId,
-    messageSenderId,
-  });
-};
+        dispatch(
+          clearUnseenMessagesFrom({
+            conversationId,
+            messageSenderId: data.otherUserId,
+            currentUserId: data.userId,
+          })
+        );
+      }
 
-// expects conversation.otherUser inside body
-export const setChatAsActive = (conversation) => async (dispatch) => {
-  try {
-    const { otherUser } = conversation;
-
-    const unSeenMessagesFromOtherUser = conversation.messages.filter(
-      (message) => message.senderId === otherUser.id && !message.seen
-    );
-
-    if (unSeenMessagesFromOtherUser.length > 0) {
-      const res = await updateMessages(otherUser);
-
-      dispatch(clearUnseenMessagesFrom(conversation.id, otherUser.id));
-      sendClearUnseenMessagesFrom(conversation.id, otherUser.id);
+      dispatch(setActiveChat(conversationId));
+    } catch (error) {
+      console.error(error);
     }
-
-    dispatch(setActiveChat(otherUser.username));
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-
-
-
+  };

@@ -21,7 +21,10 @@ const styles = {
 
 class Chat extends Component {
   handleClick = async (conversation) => {
-    await this.props.setChatAsActive(conversation);
+    await this.props.setChatAsActive(
+      conversation.id,
+      conversation.unreadMessageCount
+    );
   };
 
   render() {
@@ -46,8 +49,8 @@ class Chat extends Component {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setChatAsActive: (otherUser) => {
-      dispatch(setChatAsActive(otherUser));
+    setChatAsActive: (conversationId, unreadMessageCount) => {
+      dispatch(setChatAsActive(conversationId, unreadMessageCount));
     },
   };
 };

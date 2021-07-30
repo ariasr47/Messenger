@@ -19,13 +19,6 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const byMostRecent = function (convo1, convo2) {
-  const d1 = new Date(convo1.messages[convo1.messages.length - 1].createdAt);
-  const d2 = new Date(convo2.messages[convo2.messages.length - 1].createdAt);
-
-  return d2 - d1;
-};
-
 const Sidebar = (props) => {
   const classes = useStyles();
   const conversations = props.conversations || [];
@@ -40,7 +33,6 @@ const Sidebar = (props) => {
         .filter((conversation) =>
           conversation.otherUser.username.includes(searchTerm)
         )
-        .sort(byMostRecent)
         .map((conversation) => {
           return (
             <Chat

@@ -1,4 +1,5 @@
 import io from "socket.io-client";
+import axios from "axios";
 import store from "./store";
 import {
   setNewMessage,
@@ -6,18 +7,6 @@ import {
   addOnlineUser,
   clearUnseenMessagesFrom,
 } from "./store/conversations";
-import {
-  updateMessages,
-  sendClearUnseenMessagesFrom,
-} from "./store/utils/thunkCreators";
-
-const getActiveConversation = () => {
-  const { conversations, activeConversation } = store.getState();
-
-  return conversations.find(
-    (conversation) => conversation.otherUser.username === activeConversation
-  );
-};
 
 const socket = io(window.location.origin);
 
@@ -33,24 +22,28 @@ socket.on("connect", () => {
   });
 
   socket.on("new-message", (data) => {
-    const convo = getActiveConversation();
-
+    const { activeConversation } = store.getState();
     let message = data.message;
 
-    if (convo && convo.otherUser.id === message.senderId) {
-      message = { ...data.message, seen: true };
-      updateMessages(convo.otherUser).then((res) => {
-        sendClearUnseenMessagesFrom(convo.id, message.senderId);
+    // user is in chat when receiving the message, mark message as true
+    if (activeConversation === message.conversationId) {
+      message.seen = true;
+
+      // update message in db
+      axios.put("/api/messages", { conversationId: activeConversation });
+
+      // tell message sender to clear his own message
+      socket.emit("clear-unseen-messages", {
+        conversationId: message.conversationId,
+        otherUserId: message.senderId,
       });
     }
 
-    store.dispatch(setNewMessage(message, data.sender));
+    store.dispatch(setNewMessage(activeConversation, message, data.sender));
   });
 
   socket.on("clear-unseen-messages", (data) => {
-    store.dispatch(
-      clearUnseenMessagesFrom(data.conversationId, data.messageSenderId)
-    );
+    store.dispatch(clearUnseenMessagesFrom(data));
   });
 });
 
