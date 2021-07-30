@@ -1,5 +1,12 @@
+const byMostRecent = function (convo1, convo2) {
+  const d1 = new Date(convo1.messages[convo1.messages.length - 1].createdAt);
+  const d2 = new Date(convo2.messages[convo2.messages.length - 1].createdAt);
+
+  return d2 - d1;
+};
+
 export const addMessageToStore = (state, payload) => {
-  const { message, sender } = payload;
+  const { activeConversation, message, sender } = payload;
   // if sender isn't null, that means the message needs to be put in a brand new convo
   if (sender !== null) {
     const newConvo = {
@@ -8,20 +15,26 @@ export const addMessageToStore = (state, payload) => {
       messages: [message],
     };
     newConvo.latestMessageText = message.text;
+    newConvo.recentActivity = message.createdAt;
+    newConvo.unreadMessageCount += 1;
     return [newConvo, ...state];
   }
 
-  return state.map((convo) => {
-    if (convo.id === message.conversationId) {
-      const convoCopy = { ...convo };
-      convoCopy.messages.push(message);
-      convoCopy.latestMessageText = message.text;
-
-      return convoCopy;
-    } else {
-      return convo;
-    }
-  });
+  return state
+    .map((convo) => {
+      if (convo.id === message.conversationId) {
+        const convoCopy = { ...convo };
+        convoCopy.messages.push(message);
+        convoCopy.latestMessageText = message.text;
+        convoCopy.recentActivity = message.createdAt;
+        if (activeConversation != message.conversationId)
+          convoCopy.unreadMessageCount += 1;
+        return convoCopy;
+      } else {
+        return convo;
+      }
+    })
+    .sort(byMostRecent);
 };
 
 export const addOnlineUserToStore = (state, id) => {
@@ -68,17 +81,28 @@ export const addSearchedUsersToStore = (state, users) => {
   return newState;
 };
 
-export const updateUnseenMessagesFrom = (state, conversationId, messageSenderId) => {
+export const updateUnseenMessagesFromStore = (state, data) => {
+  const { conversationId, messageSenderId, currentUserId } = data;
+
   return state.map((convo) => {
     if (convo.id === conversationId) {
+      let lastMessageReadByOtherUser = -1;
+
+      const newMessages = convo.messages.map((message) => {
+        if (message.senderId === currentUserId)
+          lastMessageReadByOtherUser = message.id;
+
+        if (message.senderId === messageSenderId && !message.seen)
+          return { ...message, seen: true };
+
+        return message;
+      });
+
       return {
         ...convo,
-        messages: convo.messages.map((message) => {
-          if (message.senderId === messageSenderId && !message.seen) {
-            return { ...message, seen: true };
-          }
-          return message;
-        }),
+        messages: newMessages,
+        lastMessageReadByOtherUser: lastMessageReadByOtherUser,
+        unreadMessageCount: 0,
       };
     }
     return convo;
@@ -86,14 +110,17 @@ export const updateUnseenMessagesFrom = (state, conversationId, messageSenderId)
 };
 
 export const addNewConvoToStore = (state, recipientId, message) => {
-  return state.map((convo) => {
-    if (convo.otherUser.id === recipientId) {
-      const newConvo = { ...convo };
-      newConvo.id = message.conversationId;
-      newConvo.messages.push(message);
-      newConvo.latestMessageText = message.text;
-      return newConvo;
-    }
-    return convo;
-  });
+  return state
+    .map((convo) => {
+      if (convo.otherUser.id === recipientId) {
+        const newConvo = { ...convo };
+        newConvo.id = message.conversationId;
+        newConvo.messages.push(message);
+        newConvo.recentActivity = message.createdAt;
+        newConvo.latestMessageText = message.text;
+        return newConvo;
+      }
+      return convo;
+    })
+    .sort(byMostRecent);
 };

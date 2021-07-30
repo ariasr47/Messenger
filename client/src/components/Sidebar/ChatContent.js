@@ -35,22 +35,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const getUnseenMessages = (messages, senderId) => {
-  return messages.filter(
-    (message) => message.senderId === senderId && message.seen === false
-  );
-};
-
 const ChatContent = (props) => {
   const { conversation } = props;
   const { latestMessageText, otherUser } = conversation;
 
-  const unseenMessages = getUnseenMessages(
-    conversation.messages,
-    conversation.otherUser.id
-  );
+  const hasUnseenMessages = conversation.unreadMessageCount > 0;
 
-  const classes = useStyles({ hasUnseenMessages: unseenMessages.length > 0 });
+  const classes = useStyles({ hasUnseenMessages });
 
   return (
     <Box className={classes.root}>
@@ -62,9 +53,9 @@ const ChatContent = (props) => {
           {latestMessageText}
         </Typography>
       </Box>
-      {unseenMessages.length > 0 && (
+      {hasUnseenMessages > 0 && (
         <Typography className={classes.notification} fontWeight={700}>
-          {unseenMessages.length}
+          {conversation.unreadMessageCount}
         </Typography>
       )}
     </Box>

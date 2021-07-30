@@ -19,8 +19,27 @@ router.get("/", async (req, res, next) => {
           user2Id: userId,
         },
       },
-      attributes: ["id"],
-      order: [[Message, "createdAt", "ASC"]],
+      attributes: {
+        include: [
+          "id",
+          [
+            Sequelize.literal(
+              `(
+                SELECT MAX("message"."createdAt")
+                  FROM
+                    "messages" AS "message"
+                  WHERE
+                    "message"."conversationId" = "conversation"."id"
+              )`
+            ),
+            "recentActivity",
+          ],
+        ],
+      },
+      order: [
+        [Sequelize.literal(`("recentActivity")`), "DESC"],
+        [Message, "createdAt", "ASC"],
+      ],
       include: [
         {
           model: Message,
@@ -66,11 +85,22 @@ router.get("/", async (req, res, next) => {
       }
 
       // set property for online status of the other user
-      if (onlineUsers.includes(convoJSON.otherUser.id)) {
+      if (onlineUsers.hasOwnProperty(convoJSON.otherUser.id)) {
         convoJSON.otherUser.online = true;
       } else {
         convoJSON.otherUser.online = false;
       }
+
+      // Set unreadMessageCount and lastMessageReadByOtherUser
+      convoJSON.unreadMessageCount = 0;
+      convoJSON.lastMessageReadByOtherUser = -1;
+
+      convoJSON.messages.forEach((message) => {
+        if (message.senderId != userId && !message.seen)
+          convoJSON.unreadMessageCount += 1;
+        if (message.senderId == userId && message.seen)
+          convoJSON.lastMessageReadByOtherUser = message.id;
+      });
 
       // set properties for notification count and latest message preview
       convoJSON.latestMessageText =

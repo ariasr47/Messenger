@@ -4,7 +4,7 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
-  updateUnseenMessagesFrom,
+  updateUnseenMessagesFromStore,
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -27,10 +27,10 @@ export const gotConversations = (conversations) => {
   };
 };
 
-export const setNewMessage = (message, sender) => {
+export const setNewMessage = (activeConversation, message, sender) => {
   return {
     type: SET_MESSAGE,
-    payload: { message, sender: sender || null },
+    payload: { activeConversation, message, sender: sender || null },
   };
 };
 
@@ -69,11 +69,10 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
-// sets all messages corresponding to the senderId to "seen"
-export const clearUnseenMessagesFrom = (conversationId, messageSenderId) => {
+export const clearUnseenMessagesFrom = (data) => {
   return {
     type: CLEAR_UNSEEN_MESSAGES_FROM,
-    payload: { conversationId, messageSenderId },
+    payload: data,
   };
 };
 
@@ -86,11 +85,7 @@ const reducer = (state = [], action) => {
     case SET_MESSAGE:
       return addMessageToStore(state, action.payload);
     case CLEAR_UNSEEN_MESSAGES_FROM:
-      return updateUnseenMessagesFrom(
-        state,
-        action.payload.conversationId,
-        action.payload.messageSenderId
-      );
+      return updateUnseenMessagesFromStore(state, action.payload);
     case ADD_ONLINE_USER:
       return addOnlineUserToStore(state, action.id);
     case REMOVE_OFFLINE_USER:
