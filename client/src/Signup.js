@@ -1,21 +1,46 @@
 import React, { useState } from "react";
-import { Redirect, useHistory } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import {
   Grid,
-  Box,
   Typography,
+  InputAdornment,
   Button,
-  FormControl,
   TextField,
-  FormHelperText,
 } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import LockIcon from "@material-ui/icons/Lock";
+import PersonIcon from "@material-ui/icons/Person";
+import EmailIcon from "@material-ui/icons/Email";
+import Layout from "./components/Layout";
 import { register } from "./store/utils/thunkCreators";
 
+const useStyles = makeStyles((theme) => ({
+  button: {
+    backgroundColor: "#3A8DFF",
+    color: "white",
+    padding: "0.5rem 3rem 0.5rem 3rem",
+    marginTop: "1rem",
+  },
+  formLabel: {
+    fontWeight: 600,
+  },
+  form: {
+    [theme.breakpoints.up("sm")]: {
+      width: "400px",
+    },
+    flexDirection: "column",
+    margin: "auto",
+    "& .MuiGrid-item": {
+      padding: "1rem",
+    },
+  },
+}));
+
 const Login = (props) => {
-  const history = useHistory();
   const { user, register } = props;
   const [formErrorMessage, setFormErrorMessage] = useState({});
+  const classes = useStyles();
 
   const handleRegister = async (event) => {
     event.preventDefault();
@@ -36,74 +61,110 @@ const Login = (props) => {
     return <Redirect to="/home" />;
   }
 
+  const buttonProps = {
+    type: "submit",
+    variant: "contained",
+    size: "large",
+    className: classes.button,
+  };
+
+  const formProps = {
+    onSubmit: handleRegister,
+    className: classes.form,
+  };
+
+  const typographyProps = {
+    variant: "h5",
+    className: classes.formLabel,
+  };
+
   return (
-    <Grid container justifyContent="center">
-      <Box>
-        <Grid container item>
-          <Typography>Need to log in?</Typography>
-          <Button onClick={() => history.push("/login")}>Login</Button>
-        </Grid>
-        <form onSubmit={handleRegister}>
-          <Grid>
-            <Grid>
-              <FormControl>
-                <TextField
-                  aria-label="username"
-                  label="Username"
-                  name="username"
-                  type="text"
-                  required
-                />
-              </FormControl>
-            </Grid>
-            <Grid>
-              <FormControl>
-                <TextField
-                  label="E-mail address"
-                  aria-label="e-mail address"
-                  type="email"
-                  name="email"
-                  required
-                />
-              </FormControl>
-            </Grid>
-            <Grid>
-              <FormControl error={!!formErrorMessage.confirmPassword}>
-                <TextField
-                  aria-label="password"
-                  label="Password"
-                  type="password"
-                  inputProps={{ minLength: 6 }}
-                  name="password"
-                  required
-                />
-                <FormHelperText>
-                  {formErrorMessage.confirmPassword}
-                </FormHelperText>
-              </FormControl>
-            </Grid>
-            <Grid>
-              <FormControl error={!!formErrorMessage.confirmPassword}>
-                <TextField
-                  label="Confirm Password"
-                  aria-label="confirm password"
-                  type="password"
-                  inputProps={{ minLength: 6 }}
-                  name="confirmPassword"
-                  required
-                />
-                <FormHelperText>
-                  {formErrorMessage.confirmPassword}
-                </FormHelperText>
-              </FormControl>
-            </Grid>
-            <Button type="submit" variant="contained" size="large">
-              Create
-            </Button>
+    <Layout>
+      <form {...formProps}>
+        <Grid container direction="column" spacing={2}>
+          <Grid item component={Typography} {...typographyProps}>
+            Create an account.
           </Grid>
-        </form>
-      </Box>
-    </Grid>
+          <Grid item>
+            <TextField
+              aria-label="username"
+              label="Username"
+              name="username"
+              type="text"
+              required
+              fullWidth
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    {<PersonIcon />}
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              aria-label="e-mail address"
+              label="E-mail address"
+              name="email"
+              type="email"
+              required
+              fullWidth
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    {<EmailIcon />}
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              aria-label="password"
+              label="Password"
+              name="password"
+              type="password"
+              required
+              fullWidth
+              InputProps={{
+                minLength: 6,
+                startAdornment: (
+                  <InputAdornment position="start">
+                    {<LockIcon />}
+                  </InputAdornment>
+                ),
+              }}
+              error={!!formErrorMessage.confirmPassword}
+              helperText={formErrorMessage.confirmPassword}
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              aria-label="confirm password"
+              label="Confirm Password"
+              name="confirmPassword"
+              type="password"
+              fullWidth
+              required
+              InputProps={{
+                minLength: 6,
+                startAdornment: (
+                  <InputAdornment position="start">
+                    {<LockIcon />}
+                  </InputAdornment>
+                ),
+              }}
+              error={!!formErrorMessage.confirmPassword}
+              helperText={formErrorMessage.confirmPassword}
+            />
+          </Grid>
+          <Grid item container justifyContent="center">
+            <Button {...buttonProps}>Create</Button>
+          </Grid>
+        </Grid>
+      </form>
+    </Layout>
   );
 };
 
