@@ -1,44 +1,16 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
-import {
-  Grid,
-  Typography,
-  Button,
-  TextField,
-  InputAdornment,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { TextField, InputAdornment } from "@material-ui/core";
 import LockIcon from "@material-ui/icons/Lock";
 import PersonIcon from "@material-ui/icons/Person";
-import { login } from "./store/utils/thunkCreators";
 import Layout from "./components/Layout";
+import Form from "./components/Form";
 
-const useStyles = makeStyles((theme) => ({
-  button: {
-    backgroundColor: "#3A8DFF",
-    color: "white",
-    padding: "0.5rem 3rem 0.5rem 3rem",
-    marginTop: "1rem",
-  },
-  formLabel: {
-    fontWeight: 600,
-  },
-  form: {
-    [theme.breakpoints.up("sm")]: {
-      width: "400px",
-    },
-    flexDirection: "column",
-    margin: "auto",
-    "& .MuiGrid-item": {
-      padding: "1rem",
-    },
-  },
-}));
+import { login } from "./store/utils/thunkCreators";
 
 const Login = (props) => {
   const { user, login } = props;
-  const classes = useStyles();
 
   if (user.id) {
     return <Redirect to="/home" />;
@@ -52,69 +24,46 @@ const Login = (props) => {
     await login({ username, password });
   };
 
-  const buttonProps = {
-    type: "submit",
-    variant: "contained",
-    size: "large",
-    className: classes.button,
-  };
-
-  const formProps = {
-    onSubmit: handleLogin,
-    className: classes.form,
-  };
-
-  const typographyProps = {
-    variant: "h5",
-    className: classes.formLabel,
-  };
-
   return (
-    <Layout>
-      <form {...formProps}>
-        <Grid container direction="column" spacing={2}>
-          <Grid item component={Typography} {...typographyProps}>
-            Welcome back!
-          </Grid>
-          <Grid item>
-            <TextField
-              label="Username"
-              aria-label="username"
-              name="username"
-              type="text"
-              margin="normal"
-              fullWidth
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PersonIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          <Grid item>
-            <TextField
-              label="Password"
-              aria-label="password"
-              name="password"
-              type="password"
-              margin="normal"
-              fullWidth
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LockIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          <Grid item container justifyContent="center">
-            <Button {...buttonProps}>Login</Button>
-          </Grid>
-        </Grid>
-      </form>
+    <Layout variant="login">
+      <Form onSubmit={handleLogin}>
+        <Form.Label>Welcome back!</Form.Label>
+        <Form.Fields>
+          <TextField
+            label="Username"
+            aria-label="username"
+            name="username"
+            type="text"
+            margin="normal"
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <PersonIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Password"
+            aria-label="password"
+            name="password"
+            type="password"
+            margin="normal"
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Form.Fields>
+        <Form.Actions justifyContent="center">
+          <Form.Button>Login</Form.Button>
+        </Form.Actions>
+      </Form>
     </Layout>
   );
 };

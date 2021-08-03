@@ -1,4 +1,4 @@
-import { AppBar, Tabs, Tab, Grid } from "@material-ui/core";
+import { AppBar, Tabs, Tab } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 
@@ -29,21 +29,17 @@ const a11yProps = (index) => {
   };
 };
 
-const MobileAppBar = () => {
+const MobileAppBar = (props) => {
   const history = useHistory();
   const classes = useStyles();
 
-  const tabValue = history.location.pathname === "/login" ? 0 : 1;
-
   return (
-    <Grid
-      item
-      container
-      component={AppBar}
-      position="static"
-      className={classes.root}
-    >
-      <Tabs variant="fullWidth" value={tabValue} aria-label="nav tabs example">
+    <AppBar position="static" className={classes.root}>
+      <Tabs
+        variant="fullWidth"
+        value={props.variant === "login" ? 0 : 1}
+        aria-label="nav tabs example"
+      >
         <LinkTab
           label="Login"
           onClick={() => history.push("/login")}
@@ -55,7 +51,7 @@ const MobileAppBar = () => {
           {...a11yProps(1)}
         />
       </Tabs>
-    </Grid>
+    </AppBar>
   );
 };
 
