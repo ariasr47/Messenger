@@ -23,7 +23,7 @@ socket.on("connect", () => {
 
   socket.on("new-message", (data) => {
     const { activeConversation } = store.getState();
-    let message = data.message;
+    const message = data.message;
 
     // user is in chat when receiving the message, mark message as true
     if (activeConversation === message.conversationId) {

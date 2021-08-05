@@ -20,21 +20,19 @@ export const addMessageToStore = (state, payload) => {
     return [newConvo, ...state];
   }
 
-  return state
-    .map((convo) => {
-      if (convo.id === message.conversationId) {
-        const convoCopy = { ...convo };
-        convoCopy.messages.push(message);
-        convoCopy.latestMessageText = message.text;
-        convoCopy.recentActivity = message.createdAt;
-        if (activeConversation != message.conversationId)
-          convoCopy.unreadMessageCount += 1;
-        return convoCopy;
-      } else {
-        return convo;
-      }
-    })
-    .sort(byMostRecent);
+  return state.map((convo) => {
+    if (convo.id === message.conversationId) {
+      const convoCopy = { ...convo };
+      convoCopy.messages.push(message);
+      convoCopy.latestMessageText = message.text;
+      convoCopy.recentActivity = message.createdAt;
+      if (activeConversation != message.conversationId)
+        convoCopy.unreadMessageCount += 1;
+      return convoCopy;
+    } else {
+      return convo;
+    }
+  });
 };
 
 export const addOnlineUserToStore = (state, id) => {
