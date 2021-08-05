@@ -1,19 +1,16 @@
 import React, { useState } from "react";
-import { Redirect, useHistory } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
-import {
-  Grid,
-  Box,
-  Typography,
-  Button,
-  FormControl,
-  TextField,
-  FormHelperText,
-} from "@material-ui/core";
+import { InputAdornment, TextField } from "@material-ui/core";
+import LockIcon from "@material-ui/icons/Lock";
+import PersonIcon from "@material-ui/icons/Person";
+import EmailIcon from "@material-ui/icons/Email";
+
+import Layout from "./components/Layout";
+import Form from "./components/Form";
 import { register } from "./store/utils/thunkCreators";
 
-const Login = (props) => {
-  const history = useHistory();
+const Signup = (props) => {
   const { user, register } = props;
   const [formErrorMessage, setFormErrorMessage] = useState({});
 
@@ -37,73 +34,78 @@ const Login = (props) => {
   }
 
   return (
-    <Grid container justifyContent="center">
-      <Box>
-        <Grid container item>
-          <Typography>Need to log in?</Typography>
-          <Button onClick={() => history.push("/login")}>Login</Button>
-        </Grid>
-        <form onSubmit={handleRegister}>
-          <Grid>
-            <Grid>
-              <FormControl>
-                <TextField
-                  aria-label="username"
-                  label="Username"
-                  name="username"
-                  type="text"
-                  required
-                />
-              </FormControl>
-            </Grid>
-            <Grid>
-              <FormControl>
-                <TextField
-                  label="E-mail address"
-                  aria-label="e-mail address"
-                  type="email"
-                  name="email"
-                  required
-                />
-              </FormControl>
-            </Grid>
-            <Grid>
-              <FormControl error={!!formErrorMessage.confirmPassword}>
-                <TextField
-                  aria-label="password"
-                  label="Password"
-                  type="password"
-                  inputProps={{ minLength: 6 }}
-                  name="password"
-                  required
-                />
-                <FormHelperText>
-                  {formErrorMessage.confirmPassword}
-                </FormHelperText>
-              </FormControl>
-            </Grid>
-            <Grid>
-              <FormControl error={!!formErrorMessage.confirmPassword}>
-                <TextField
-                  label="Confirm Password"
-                  aria-label="confirm password"
-                  type="password"
-                  inputProps={{ minLength: 6 }}
-                  name="confirmPassword"
-                  required
-                />
-                <FormHelperText>
-                  {formErrorMessage.confirmPassword}
-                </FormHelperText>
-              </FormControl>
-            </Grid>
-            <Button type="submit" variant="contained" size="large">
-              Create
-            </Button>
-          </Grid>
-        </form>
-      </Box>
-    </Grid>
+    <Layout variant="register">
+      <Form onSubmit={handleRegister}>
+        <Form.Label>Create an account.</Form.Label>
+        <Form.Fields>
+          <TextField
+            aria-label="username"
+            label="Username"
+            name="username"
+            type="text"
+            required
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  {<PersonIcon />}
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            aria-label="e-mail address"
+            label="E-mail address"
+            name="email"
+            type="email"
+            required
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  {<EmailIcon />}
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            aria-label="password"
+            label="Password"
+            name="password"
+            type="password"
+            required
+            fullWidth
+            InputProps={{
+              minLength: 6,
+              startAdornment: (
+                <InputAdornment position="start">{<LockIcon />}</InputAdornment>
+              ),
+            }}
+            error={!!formErrorMessage.confirmPassword}
+            helperText={formErrorMessage.confirmPassword}
+          />
+          <TextField
+            aria-label="confirm password"
+            label="Confirm Password"
+            name="confirmPassword"
+            type="password"
+            fullWidth
+            required
+            InputProps={{
+              minLength: 6,
+              startAdornment: (
+                <InputAdornment position="start">{<LockIcon />}</InputAdornment>
+              ),
+            }}
+            error={!!formErrorMessage.confirmPassword}
+            helperText={formErrorMessage.confirmPassword}
+          />
+        </Form.Fields>
+        <Form.Actions justifyContent="center">
+          <Form.Button>Create</Form.Button>
+        </Form.Actions>
+      </Form>
+    </Layout>
   );
 };
 
@@ -121,4 +123,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(Signup);

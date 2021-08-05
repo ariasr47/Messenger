@@ -1,19 +1,20 @@
 import React from "react";
-import { Redirect, useHistory } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
-import {
-  Grid,
-  Box,
-  Typography,
-  Button,
-  FormControl,
-  TextField,
-} from "@material-ui/core";
+import { TextField, InputAdornment } from "@material-ui/core";
+import LockIcon from "@material-ui/icons/Lock";
+import PersonIcon from "@material-ui/icons/Person";
+import Layout from "./components/Layout";
+import Form from "./components/Form";
+
 import { login } from "./store/utils/thunkCreators";
 
 const Login = (props) => {
-  const history = useHistory();
   const { user, login } = props;
+
+  if (user.id) {
+    return <Redirect to="/home" />;
+  }
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -23,46 +24,47 @@ const Login = (props) => {
     await login({ username, password });
   };
 
-  if (user.id) {
-    return <Redirect to="/home" />;
-  }
-
   return (
-    <Grid container justifyContent="center">
-      <Box>
-        <Grid container item>
-          <Typography>Need to register?</Typography>
-          <Button onClick={() => history.push("/register")}>Register</Button>
-        </Grid>
-        <form onSubmit={handleLogin}>
-          <Grid>
-            <Grid>
-              <FormControl margin="normal" required>
-                <TextField
-                  aria-label="username"
-                  label="Username"
-                  name="username"
-                  type="text"
-                />
-              </FormControl>
-            </Grid>
-            <FormControl margin="normal" required>
-              <TextField
-                label="password"
-                aria-label="password"
-                type="password"
-                name="password"
-              />
-            </FormControl>
-            <Grid>
-              <Button type="submit" variant="contained" size="large">
-                Login
-              </Button>
-            </Grid>
-          </Grid>
-        </form>
-      </Box>
-    </Grid>
+    <Layout variant="login">
+      <Form onSubmit={handleLogin}>
+        <Form.Label>Welcome back!</Form.Label>
+        <Form.Fields>
+          <TextField
+            label="Username"
+            aria-label="username"
+            name="username"
+            type="text"
+            margin="normal"
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <PersonIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Password"
+            aria-label="password"
+            name="password"
+            type="password"
+            margin="normal"
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Form.Fields>
+        <Form.Actions justifyContent="center">
+          <Form.Button>Login</Form.Button>
+        </Form.Actions>
+      </Form>
+    </Layout>
   );
 };
 
