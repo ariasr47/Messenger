@@ -32,7 +32,7 @@ Form.Fields = (props) => {
   return (
     <Grid item container direction="column" spacing={2}>
       {Children.toArray(props.children).map((Field, index) => (
-        <Grid key={index} item>
+        <Grid key={"Field-" + index} item>
           {Field}
         </Grid>
       ))}
