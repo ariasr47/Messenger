@@ -1,3 +1,5 @@
+> **Archived — October 2, 2026.** This one-to-one realtime chat application is no longer actively maintained. It is preserved for historical reference.
+
 # Messenger
 
 A one-to-one realtime chat app.
